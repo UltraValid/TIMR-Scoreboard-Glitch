@@ -1,0 +1,117 @@
+int[] start = {15,75,20,100,50,2,40,25,35,3,1,10,5,30,4,12};
+int[] toadd = {22,60,7,52,112,75,18,150,6,15,0,52,3,37,6,37};
+String[] names ={"Maroon","Red","Orange","Yellow","Lime","Green","Cyan","Blue","Navy","Purple","Lavender","Pink","Magenta","Brown","White","Black"};
+int[] waias = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+int[] waiae = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+boolean[] taken = {false,false,false,false,
+false,false,false,false,false,false,false,false,
+false,false,false,false};
+int timer, maxScore, x, y;
+int[][] colors = {{128,0,0},{255,0,0},{255,165,0},{255,255,0},{0,255,0},{0,128,0},{0,255,255},{0,0,255},{0,0,128},{128,0,128},{238,130,238},{255,105,180},{255,0,255},{139,69,19},{255,255,255},{25,25,25}};
+String[] after = {"st","nd","rd","th","th","th",
+"th","th","th","th","th","th","th","th","th","th"};
+PFont font;
+PFont font2;
+int margin = 100;
+float perc = 0;
+void setup(){
+  font = loadFont("ArialMT-48.vlw");
+  font2 = loadFont("Arial-BoldItalicMT-48.vlw");
+  size(1280,720);
+  for(int i = 0; i < 16; i++){
+    int record = 0;
+    int recordHolder = 0;
+    for(int j = 15; j >= 0; j--){
+      if(start[j] >= record && !taken[j]){
+        record = start[j];
+        recordHolder = j;
+      }
+    }
+    taken[recordHolder] = true;
+    waias[recordHolder] = i;
+  }
+  for(int i = 0; i < 16; i++){
+    taken[i] = false;
+  }
+  for(int i = 0; i < 16; i++){
+    int record = 0;
+    int recordHolder = 0;
+    for(int j = 15; j >= 0; j--){
+      if(start[j]+toadd[j] >= record && !taken[j]){
+        record = start[j]+toadd[j];
+        recordHolder = j;
+      }
+    }
+    taken[recordHolder] = true;
+    waiae[recordHolder] = i;
+    if(i == 0) maxScore = record;
+  }
+  textFont(font,40);
+  noStroke();
+  frameRate(60);
+}
+void draw(){
+  background(0);
+  if(timer < 1200){
+    fill(80);
+    rect(0,0,margin,height);
+    timer++;
+    textAlign(LEFT);
+    fill(255);
+    for(int i = 0; i < 16; i++){
+      text((i+1)+after[i],margin-93,35+45*i);
+    }
+    if(timer < 480){
+      perc = max((float(timer)-180)/300,0);
+    }else{
+      perc = min(max((float(timer)-480)/300,0),1);
+      perc = -cos(perc*PI)/2+0.5;
+    }
+    for(int j = 0; j < 16; j++){
+      fill(colors[j][0],colors[j][1],colors[j][2]);
+      if(timer < 480){
+        x = int(1020*(start[j]+float(toadd[j])*perc)/maxScore);
+        y = 45*waias[j];
+      }else{
+        x = int(1020*(start[j]+toadd[j])/maxScore);
+        y = int((waias[j]+(float(waiae[j])-float(waias[j]))*perc)*45);
+      }
+      rect(margin,5+y,x,35);
+      textAlign(LEFT);
+      text(names[j],margin+x+5,35+y);
+      fill(0);
+      textAlign(RIGHT);
+      if(timer < 480){
+  text(addCommas(round((start[j]+toadd[j]*perc))),margin+x,35+y);
+      }else{
+        text(addCommas(start[j]+toadd[j]),margin+x,35+y);
+      }
+      if(waiae[j] >= 15){ 
+        fill(255,25,0);
+        textFont(font2,44);
+        textAlign(LEFT);
+        text("ELIMINATED",names[j].length()*20+130+x,37+y);
+        textFont(font,40);
+      }
+      if(waiae[j] >= 14){if(timer > 800)
+        fill(255,25,0);
+        textFont(font2,44);
+        textAlign(LEFT);
+        text("ELIMINATED",names[j].length()*20+130+x,37+y);
+        textFont(font,40);
+      }
+    }
+    //saveFrame("images\\####.png");
+  }
+}
+String addCommas(int n){
+  String s = n+"";
+  String output = "";
+  for(int i = 0; i < s.length(); i++){
+    if(i >= 1 && (s.length()-i)%3 == 0){
+      output = output+",";
+    }
+    output = output+s.charAt(i);
+  }
+  return output;
+}
